@@ -332,8 +332,16 @@ document.querySelectorAll('form[data-lead]').forEach(form=>{
   form.addEventListener('submit',async e=>{
     e.preventDefault();
     const fd=new FormData(form);
+    // אימות מספר טלפון נייד ישראלי: מתחיל ב-05 ובעל 10 ספרות
+    let phone=(fd.get('phone')||'').toString().replace(/\D/g,'');
+    if(phone.startsWith('972')) phone='0'+phone.slice(3);
+    if(!/^05\d{8}$/.test(phone)){
+      alert('נא להזין מספר טלפון נייד תקין: צריך להתחיל ב-05 ולכלול 10 ספרות.');
+      const pe=form.querySelector('input[name=phone]'); if(pe){pe.focus();}
+      return;
+    }
     const payload={
-      name:fd.get('name'),phone:fd.get('phone'),email:fd.get('email'),
+      name:fd.get('name'),phone:phone,email:fd.get('email'),
       ...utm(), page:location.href, webinar:CONFIG.webinarDate,
       submitted_at:new Date().toISOString()
     };
